@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "ProjectSetup",
+  "title": "",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use?"
+    },
+    "uiLibrary": {
+      "type": "string",
+      "description": "",
+      "default": "none",
+      "x-prompt": {
+        "message": "Which UI library do you want to use?",
+        "type": "list",
+        "items": [
+          {
+            "value": "material-ui",
+            "label": "Material UI"
+          },
+          {
+            "value": "antD",
+            "label": "Ant Design"
+          },
+          {
+            "value": "none",
+            "label": "none"
+          }
+        ]
+      }
+    },
+    "apiLibrary": {
+      "type": "string",
+      "description": "",
+      "default": "none",
+      "x-prompt": {
+        "message": "Which API library do you want to use?",
+        "type": "list",
+        "items": [
+          {
+            "value": "react-query",
+            "label": "React Query"
+          },
+          {
+            "value": "SWR",
+            "label": "SWR"
+          },
+          {
+            "value": "none",
+            "label": "none"
+          }
+        ]
+      }
+    },
+    "utilityLibrary": {
+      "type": "string",
+      "description": "",
+      "default": "none",
+      "x-prompt": {
+        "message": "Which uitility library do you want to use?",
+        "type": "list",
+        "items": [
+          {
+            "value": "lodash",
+            "label": "lodash"
+          },
+          {
+            "value": "ramda",
+            "label": "ramda"
+          },
+          {
+            "value": "none",
+            "label": "none"
+          }
+        ]
+      }
+    },
+    "stateManagement": {
+      "type": "boolean",
+      "description": "",
+      "default": false,
+      "x-prompt": "Do you want to use redux for state management?"
+    },
+    "router": {
+      "type": "boolean",
+      "description": "",
+      "default": false,
+      "x-prompt": "Do you want to use react router?"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

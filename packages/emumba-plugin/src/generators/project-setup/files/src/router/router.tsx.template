@@ -1,0 +1,25 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+
+/**
+ * Define routes for your application, including a protected User route.
+ * @param {boolean} isAuthenticated - Indicates whether the user is authenticated.
+ * @returns {Array} An array of route objects.
+ */
+const routes = (isAuthenticated: boolean) => [
+  {
+    path: '/',
+    element: <div>Home</div>, // Rendered content for the Home route
+  },
+  {
+    path: '/user',
+    element: isAuthenticated ? ( // If authenticated, show the protected User content
+      <div>Protected User Route</div>
+    ) : (
+      // If not authenticated, redirect to the Home route
+      <Navigate to="/" replace />
+    ),
+  },
+];
+
+export default routes;

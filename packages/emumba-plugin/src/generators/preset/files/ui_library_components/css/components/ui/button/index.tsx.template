@@ -1,0 +1,17 @@
+import React from 'react';
+import './styles.css';
+
+interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  text: string;
+  className?: string;
+}
+
+const MyButton: React.FC<Props> = ({ text, className, ...props }) => {
+  return (
+    <button className={`custom-button ${className}`} {...props}>
+      {text}
+    </button>
+  );
+};
+
+export default MyButton;

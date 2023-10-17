@@ -1,0 +1,12 @@
+import { configureStore } from "@reduxjs/toolkit";
+import thunkMiddleware from "redux-thunk";
+import rootReducer from "./reducer.ts.template"; // Import your combined reducer
+
+// Configure and create the Redux store
+const store = configureStore({
+    reducer: rootReducer, // Combined reducer containing all state slices
+    middleware: [thunkMiddleware], // Middleware stack, including thunk for handling async actions
+});
+
+// Export the configured Redux store for use in the application
+export default store;

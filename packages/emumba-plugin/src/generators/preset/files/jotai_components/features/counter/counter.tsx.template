@@ -1,0 +1,35 @@
+import { atom, useAtom } from 'jotai';
+import "./counter.css";
+
+const counter = atom(0)
+
+export default function Counter() {
+  const [count, setCounter] = useAtom(counter);
+ const handleInc=()=>{
+  setCounter(prev => prev + 1);
+ }
+ const handleDec=()=>{
+  setCounter(prev => prev - 1);
+ }
+  return (
+    <div>
+      <div className={"row"}>
+        <button
+          className={"button"}
+          aria-label="Decrement value"
+          onClick={handleDec}
+        >
+          -
+        </button>
+        <span className={"value"}>{count}</span>
+        <button
+          className={"button"}
+          aria-label="Increment value"
+          onClick={handleInc}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
