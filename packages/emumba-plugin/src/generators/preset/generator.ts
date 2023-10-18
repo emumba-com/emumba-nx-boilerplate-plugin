@@ -126,7 +126,7 @@ export async function presetGenerator(
   } else if (options.uiLibrary === 'none') {
     generateFiles(
       tree,
-      path.join(__dirname, 'files', 'ui_library_components', 'css'),
+      path.join(__dirname, 'files', 'ui_library_components', 'none'),
       projectSrc,
       options
     );
@@ -192,20 +192,71 @@ export async function presetGenerator(
     ]);
     dependencies['react-redux'] = deps.at(0);
     dependencies['@reduxjs/toolkit'] = deps.at(1);
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'redux_components'),
-      projectSrc,
-      options
-    );
+
+    switch (options.defaultStylesheet) {
+      case 'css':
+        generateFiles(
+          tree,
+          path.join(__dirname, 'files', 'redux_components', 'css'),
+          projectSrc,
+          options
+        );
+        break;
+      case 'sass':
+        generateFiles(
+          tree,
+          path.join(__dirname, 'files', 'redux_components', 'scss'),
+          projectSrc,
+          options
+        );
+        break;
+      case 'styled-components':
+        generateFiles(
+          tree,
+          path.join(
+            __dirname,
+            'files',
+            'redux_components',
+            'styled-components'
+          ),
+          projectSrc,
+          options
+        );
+        break;
+    }
   } else if (options.stateManagement === 'jotai') {
     dependencies['jotai'] = await getLatestVersion('jotai');
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'jotai_components'),
-      projectSrc,
-      options
-    );
+    switch (options.defaultStylesheet) {
+      case 'css':
+        generateFiles(
+          tree,
+          path.join(__dirname, 'files', 'jotai_components', 'css'),
+          projectSrc,
+          options
+        );
+        break;
+      case 'sass':
+        generateFiles(
+          tree,
+          path.join(__dirname, 'files', 'jotai_components', 'scss'),
+          projectSrc,
+          options
+        );
+        break;
+      case 'styled-components':
+        generateFiles(
+          tree,
+          path.join(
+            __dirname,
+            'files',
+            'jotai_components',
+            'styled-components'
+          ),
+          projectSrc,
+          options
+        );
+        break;
+    }
   }
 
   if (options.formLibrary === 'react-hook-form') {
@@ -252,6 +303,19 @@ export async function presetGenerator(
       projectPagesPath + '/login',
       options
     );
+  }
+
+  if (options.defaultStylesheet === 'css') {
+  } else if (options.defaultStylesheet === 'sass') {
+    devDependencies['sass'] = await getLatestVersion('sass');
+    tree.rename('src/index.css', 'src/index.scss');
+    tree.rename('src/App.css', 'src/App.scss');
+  } else if (options.defaultStylesheet === 'styled-components') {
+    dependencies['styled-components'] = await getLatestVersion(
+      'styled-components'
+    );
+    tree.delete('src/index.css');
+    tree.delete('src/App.css');
   }
 
   if (options.useStorybook) {
