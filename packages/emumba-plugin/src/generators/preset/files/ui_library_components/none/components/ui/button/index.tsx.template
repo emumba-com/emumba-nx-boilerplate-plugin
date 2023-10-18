@@ -1,5 +1,4 @@
 import React from 'react';
-import './styles.css';
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   text: string;
@@ -8,7 +7,18 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const MyButton: React.FC<Props> = ({ text, className, ...props }) => {
   return (
-    <button className={`custom-button ${className}`} {...props}>
+    <button 
+     style={{
+      cursor: 'pointer',
+      color: 'white',
+      backgroundColor: '#007bff',
+      borderRadius: '5px',
+      border: 'none',
+      padding: '10px 20px'
+     }}
+     className={className}
+     {...props}
+     >
       {text}
     </button>
   );

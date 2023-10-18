@@ -12,11 +12,15 @@ import { store } from './app/store';
 <%_ } _%>
 <%_ if (uiLibrary === 'mui') { _%>
 import { ThemeProvider } from '@mui/material/styles';
-import Button from './components/ui/button'
 import theme from './theme'; // Import your MUI theme file
 <%_ } _%>
 import App from './App';
+<%_ if(defaultStylesheet === 'css') { _%>
 import './index.css';
+<%_ } _%>
+<%_ if(defaultStylesheet === 'sass') { _%>
+import './index.scss';
+<%_ } _%>
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
