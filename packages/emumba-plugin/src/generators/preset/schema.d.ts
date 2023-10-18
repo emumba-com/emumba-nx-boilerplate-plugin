@@ -6,5 +6,6 @@ export interface PresetGeneratorSchema {
   useReactRouter: boolean;
   stateManagement: 'redux' | 'jotai' | 'none';
   formLibrary: 'react-hook-form' | 'formik' | 'none';
+  defaultStylesheet: 'css' | 'sass' | 'styled-components';
   useStorybook: boolean;
 }
