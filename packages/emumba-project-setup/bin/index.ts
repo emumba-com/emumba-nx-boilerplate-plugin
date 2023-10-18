@@ -99,7 +99,7 @@ async function main() {
       ).stateManagement;
     }
 
-    let formLibrary = process.argv[7];
+    let formLibrary = process.argv[8];
     if (!formLibrary) {
       formLibrary = (
         await prompt<{ formLibrary: 'react-hook-form' | 'formik' | 'none' }>({
@@ -116,7 +116,26 @@ async function main() {
       ).formLibrary;
     }
 
-    const storybook = process.argv[8];
+    let defaultStylesheet = process.argv[9];
+    if (!defaultStylesheet) {
+      defaultStylesheet = (
+        await prompt<{
+          defaultStylesheet: 'css' | 'sass' | 'styled-components';
+        }>({
+          name: 'defaultStylesheet',
+          message: 'Default stylesheet format',
+          initial: 'css' as any,
+          type: 'autocomplete',
+          choices: [
+            { name: 'css', message: 'CSS' },
+            { name: 'sass', message: 'SASS' },
+            { name: 'styled-components', message: 'Styled-Components' },
+          ],
+        })
+      ).defaultStylesheet;
+    }
+
+    const storybook = process.argv[10];
     let useStorybook = true;
     if (!storybook) {
       useStorybook = (
@@ -148,6 +167,7 @@ async function main() {
         useReactRouter,
         stateManagement,
         formLibrary,
+        defaultStylesheet,
         useStorybook,
       }
     );
