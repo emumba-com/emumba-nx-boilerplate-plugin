@@ -11,47 +11,65 @@ import { PresetGeneratorSchema } from './schema';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
-async function getLatestVersion(packageName: string): Promise<string> {
-  const execAsync = promisify(exec);
-  const { stdout } = await execAsync(`npm show ${packageName} version`);
-  return stdout.trim() || 'latest';
+// npm packages
+let dependencies = {};
+let devDependencies = {};
+
+// Function to fetch the latest version of a npm package
+async function fetchLatestPackageVersion(packageName: string): Promise<string> {
+  try {
+    const execAsync = promisify(exec);
+    const { stdout } = await execAsync(`npm show ${packageName} version`);
+    return stdout.trim() || 'latest';
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// Function to add dependencies to package.json
+async function addDependencies(deps: string[] = [], devDeps: string[] = []) {
+  // Fetch the latest versions of both regular and dev dependencies in parallel
+  const [latestDeps, latestDevDeps] = await Promise.all([
+    Promise.all(deps.map((dep) => fetchLatestPackageVersion(dep))),
+    Promise.all(devDeps.map((dep) => fetchLatestPackageVersion(dep))),
+  ]);
+
+  // Convert the arrays to objects with dependency names as keys
+  const dependencyObj = Object.fromEntries(
+    deps.map((dep, index) => [dep, latestDeps[index]])
+  );
+
+  const devDependencyObj = Object.fromEntries(
+    devDeps.map((dep, index) => [dep, latestDevDeps[index]])
+  );
+
+  dependencies = { ...dependencies, ...dependencyObj };
+  devDependencies = { ...devDependencies, ...devDependencyObj };
 }
 
 export async function presetGenerator(
   tree: Tree,
   options: PresetGeneratorSchema
 ) {
-  const reactDeps = await Promise.all([
-    getLatestVersion('react'),
-    getLatestVersion('react-dom'),
-    getLatestVersion('react-scripts'),
-  ]);
-  const reactDevDeps = await Promise.all([
-    getLatestVersion('typescript'),
-    getLatestVersion('@types/react'),
-    getLatestVersion('@types/react-dom'),
-  ]);
-  const dependencies = {
-    react: reactDeps.at(0),
-    'react-dom': reactDeps.at(1),
-    'react-scripts': reactDeps.at(2),
-  };
-  const devDependencies = {
-    typescript: reactDevDeps.at(0),
-    '@types/react': reactDevDeps.at(1),
-    '@types/react-dom': reactDevDeps.at(2),
-  };
+  await addDependencies(
+    ['react', 'react-dom', 'react-scripts'],
+    ['typescript', '@types/react', '@types/react-dom']
+  );
 
+  // Define project paths.
   const projectRoot = `.`;
   const projectSrc = projectRoot + '/src';
   const projectComponentsPath = projectSrc + '/components';
   const projectPagesPath = projectSrc + '/pages';
 
+  // Configure the project in Nx.
   addProjectConfiguration(tree, options.name, {
     root: projectRoot,
     projectType: 'application',
     targets: {},
   });
+
+  // Generate files and scripts for webpack.
   if (options.buildTool === 'webpack') {
     generateFiles(
       tree,
@@ -68,28 +86,27 @@ export async function presetGenerator(
       return json;
     });
   } else if (options.buildTool === 'vite') {
+    // Generate files and scripts for Vite.
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'vite_components'),
       projectRoot,
       options
     );
-    const devDeps = await Promise.all([
-      getLatestVersion('@typescript-eslint/eslint-plugin'),
-      getLatestVersion('@typescript-eslint/parser'),
-      getLatestVersion('@vitejs/plugin-react'),
-      getLatestVersion('eslint'),
-      getLatestVersion('eslint-plugin-react-hooks'),
-      getLatestVersion('eslint-plugin-react-refresh'),
-      getLatestVersion('vite'),
-    ]);
-    devDependencies['@typescript-eslint/eslint-plugin'] = devDeps.at(0);
-    devDependencies['@typescript-eslint/parser'] = devDeps.at(1);
-    devDependencies['@vitejs/plugin-react'] = devDeps.at(2);
-    devDependencies['eslint'] = devDeps.at(3);
-    devDependencies['eslint-plugin-react-hooks'] = devDeps.at(4);
-    devDependencies['eslint-plugin-react-refresh'] = devDeps.at(5);
-    devDependencies['vite'] = devDeps.at(6);
+    // Add Vite-specific devDependencies.
+    await addDependencies(
+      [],
+      [
+        '@typescript-eslint/eslint-plugin',
+        '@typescript-eslint/parser',
+        '@vitejs/plugin-react',
+        'eslint',
+        'eslint-plugin-react-hooks',
+        'eslint-plugin-react-refresh',
+        'vite',
+      ]
+    );
+    // Update package.json scripts.
     updateJson(tree, 'package.json', (json) => {
       json.scripts = json.scripts || {};
       json.scripts.dev = 'vite';
@@ -100,8 +117,9 @@ export async function presetGenerator(
       return json;
     });
   }
+  // Handle UI library options.
   if (options.uiLibrary === 'antd') {
-    dependencies['antd'] = await getLatestVersion('antd');
+    await addDependencies(['antd']);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'ui_library_components', 'antd'),
@@ -109,14 +127,11 @@ export async function presetGenerator(
       options
     );
   } else if (options.uiLibrary === 'mui') {
-    const deps = await Promise.all([
-      getLatestVersion('@mui/material'),
-      getLatestVersion('@emotion/react'),
-      getLatestVersion('@emotion/styled'),
+    await addDependencies([
+      '@mui/material',
+      '@emotion/react',
+      '@emotion/styled',
     ]);
-    dependencies['@mui/material'] = deps.at(0);
-    dependencies['@emotion/react'] = deps.at(1);
-    dependencies['@emotion/styled'] = deps.at(2);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'ui_library_components', 'mui'),
@@ -131,10 +146,10 @@ export async function presetGenerator(
       options
     );
   }
+
+  // Handle data fetching options.
   if (options.reactQuery_swr === 'react-query') {
-    dependencies['@tanstack/react-query'] = await getLatestVersion(
-      '@tanstack/react-query'
-    );
+    await addDependencies(['@tanstack/react-query']);
     if (options.useReactRouter) {
       generateFiles(
         tree,
@@ -151,7 +166,7 @@ export async function presetGenerator(
       );
     }
   } else if (options.reactQuery_swr === 'swr') {
-    dependencies['swr'] = await getLatestVersion('swr');
+    await addDependencies(['swr']);
     if (options.useReactRouter) {
       generateFiles(
         tree,
@@ -168,10 +183,10 @@ export async function presetGenerator(
       );
     }
   }
+
+  // Handle React Router.
   if (options.useReactRouter) {
-    dependencies['react-router-dom'] = await getLatestVersion(
-      'react-router-dom'
-    );
+    await addDependencies(['react-router-dom']);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'router_components'),
@@ -185,13 +200,10 @@ export async function presetGenerator(
       options
     );
   }
+
+  // Handle state management options.
   if (options.stateManagement === 'redux') {
-    const deps = await Promise.all([
-      getLatestVersion('react-redux'),
-      getLatestVersion('@reduxjs/toolkit'),
-    ]);
-    dependencies['react-redux'] = deps.at(0);
-    dependencies['@reduxjs/toolkit'] = deps.at(1);
+    await addDependencies(['react-redux', '@reduxjs/toolkit']);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'redux_components'),
@@ -199,7 +211,7 @@ export async function presetGenerator(
       options
     );
   } else if (options.stateManagement === 'jotai') {
-    dependencies['jotai'] = await getLatestVersion('jotai');
+    await addDependencies(['jotai']);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'jotai_components'),
@@ -208,17 +220,14 @@ export async function presetGenerator(
     );
   }
 
+  // Handle form library options.
   if (options.formLibrary === 'react-hook-form') {
-    const deps = await Promise.all([
-      getLatestVersion('react-hook-form'),
-      getLatestVersion('@hookform/resolvers'),
-      getLatestVersion('yup'),
-      getLatestVersion('@types/yup'),
+    await addDependencies([
+      'react-hook-form',
+      '@hookform/resolvers',
+      'yup',
+      '@types/yup',
     ]);
-    dependencies['react-hook-form'] = deps.at(0);
-    dependencies['@hookform/resolvers'] = deps.at(1);
-    dependencies['yup'] = deps.at(2);
-    devDependencies['@types/yup'] = deps.at(3);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'react_hook_form_components'),
@@ -232,14 +241,7 @@ export async function presetGenerator(
       options
     );
   } else if (options.formLibrary === 'formik') {
-    const deps = await Promise.all([
-      getLatestVersion('formik'),
-      getLatestVersion('yup'),
-      getLatestVersion('@types/yup'),
-    ]);
-    dependencies['formik'] = deps.at(0);
-    dependencies['yup'] = deps.at(1);
-    devDependencies['@types/yup'] = deps.at(2);
+    await addDependencies(['formik', 'yup'], ['@types/yup']);
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'formik_components'),
@@ -254,44 +256,34 @@ export async function presetGenerator(
     );
   }
 
+  // Handle Storybook.
   if (options.useStorybook) {
-    const devDeps = await Promise.all([
-      getLatestVersion('@storybook/addon-essentials'),
-      getLatestVersion('@storybook/addon-interactions'),
-      getLatestVersion('@storybook/addon-links'),
-      getLatestVersion('@storybook/addon-onboarding'),
-      getLatestVersion('@storybook/blocks'),
-      getLatestVersion('@storybook/preset-create-react-app'),
-      getLatestVersion('@storybook/react'),
-      getLatestVersion('@storybook/testing-library'),
-      getLatestVersion('babel-plugin-named-exports-order'),
-      getLatestVersion('eslint-plugin-storybook'),
-      getLatestVersion('prop-types'),
-      getLatestVersion('storybook'),
-    ]);
-    devDependencies['@storybook/addon-essentials'] = devDeps.at(0);
-    devDependencies['@storybook/addon-interactions'] = devDeps.at(1);
-    devDependencies['@storybook/addon-links'] = devDeps.at(2);
-    devDependencies['@storybook/addon-onboarding'] = devDeps.at(3);
-    devDependencies['@storybook/blocks'] = devDeps.at(4);
-    devDependencies['@storybook/preset-create-react-app'] = devDeps.at(5);
-    devDependencies['@storybook/react'] = devDeps.at(6);
-    devDependencies['@storybook/testing-library'] = devDeps.at(7);
-    devDependencies['babel-plugin-named-exports-order'] = devDeps.at(8);
-    devDependencies['eslint-plugin-storybook'] = devDeps.at(9);
-    devDependencies['prop-types'] = devDeps.at(10);
-    devDependencies['storybook'] = devDeps.at(11);
+    await addDependencies(
+      [],
+      [
+        '@storybook/addon-essentials',
+        '@storybook/addon-interactions',
+        '@storybook/addon-links',
+        '@storybook/addon-onboarding',
+        '@storybook/blocks',
+        '@storybook/preset-create-react-app',
+        '@storybook/react',
+        '@storybook/testing-library',
+        'babel-plugin-named-exports-order',
+        'eslint-plugin-storybook',
+        'prop-types',
+        'storybook',
+      ]
+    );
 
+    // Depending on the build tool, add Storybook-specific dependencies.
     if (options.buildTool === 'webpack') {
-      devDependencies['webpack'] = await getLatestVersion('webpack');
-      devDependencies['@storybook/react-webpack5'] = await getLatestVersion(
-        '@storybook/react-webpack5'
-      );
+      await addDependencies([], ['webpack', '@storybook/react-webpack5']);
     } else if (options.buildTool === 'vite') {
-      devDependencies['@storybook/react-vite'] = await getLatestVersion(
-        '@storybook/react-vite'
-      );
+      await addDependencies([], ['@storybook/react-vite']);
     }
+
+    // Generate Storybook files and update package.json scripts.
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'storybook_components', '.storybook'),
@@ -311,6 +303,8 @@ export async function presetGenerator(
       return json;
     });
   }
+
+  // Format the project files and add the collected dependencies to package.json.
   await formatFiles(tree);
   return addDependenciesToPackageJson(tree, dependencies, devDependencies);
 }
