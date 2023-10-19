@@ -16,7 +16,12 @@ import Button from './components/ui/button'
 import theme from './theme'; // Import your MUI theme file
 <%_ } _%>
 import App from './App';
-import './index.css';
+<%_ if (defaultStylesheet === 'css') { _%>
+import "./App.css";
+<%_ } _%>
+<%_ if (defaultStylesheet === 'sass') { _%>
+import "./App.scss";
+<%_ } _%>
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
