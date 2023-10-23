@@ -1,0 +1,63 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+<%_ if (useReactRouter === true) { _%>
+import { BrowserRouter } from 'react-router-dom';
+<%_ } _%>
+<%_ if (reactQuery_swr === 'react-query') { _%>
+import { QueryClient, QueryClientProvider, } from '@tanstack/react-query';
+<%_ } _%>
+<%_ if (stateManagement === 'redux') { _%>
+import { Provider } from 'react-redux';
+import { store } from './app/store';
+<%_ } _%>
+<%_ if (uiLibrary === 'mui') { _%>
+import { ThemeProvider } from '@mui/material/styles';
+import Button from './components/ui/button'
+import theme from './theme'; // Import your MUI theme file
+<%_ } _%>
+import { App } from './app/App';
+<%_ if (defaultStylesheet === 'css') { _%>
+import "./styles.css";
+<%_ } _%>
+<%_ if (defaultStylesheet === 'sass') { _%>
+import "./styles.scss";
+<%_ } _%>
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+
+<%_ if (reactQuery_swr === 'react-query') { _%>
+// Create a client
+const queryClient = new QueryClient()
+<%_ } _%>
+
+root.render(
+  <React.StrictMode>
+    <%_ if (useReactRouter === true) { _%>
+    <BrowserRouter>
+    <%_ } _%>
+    <%_ if (stateManagement === 'redux') { _%>
+    <Provider store={store}>
+    <%_ } _%>
+    <%_ if (uiLibrary === 'mui') { _%>
+    <ThemeProvider theme={theme}>
+    <%_ } _%>
+    <%_ if (reactQuery_swr === 'react-query') { _%>
+    <QueryClientProvider client={queryClient}>
+   <%_ } _%>
+    <App />
+    <%_ if (reactQuery_swr === 'react-query') { _%>
+    </QueryClientProvider>
+   <%_ } _%>
+    <%_ if (uiLibrary === 'mui') { _%>
+    </ThemeProvider>
+    <%_ } _%>
+    <%_ if (stateManagement === 'redux') { _%>
+    </Provider>
+    <%_ } _%>
+    <%_ if (useReactRouter === true) { _%>
+    </BrowserRouter>
+    <%_ } _%>
+  </React.StrictMode>
+);
