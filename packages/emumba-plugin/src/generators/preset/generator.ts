@@ -1,15 +1,16 @@
 import {
   addDependenciesToPackageJson,
-  addProjectConfiguration,
   formatFiles,
   generateFiles,
+  installPackagesTask,
+  moveFilesToNewDirectory,
   Tree,
-  updateJson,
 } from '@nx/devkit';
 import * as path from 'path';
 import { PresetGeneratorSchema } from './schema';
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import { promisify } from 'util';
+const execAsync = promisify(exec);
 
 // npm packages
 let dependencies = {};
@@ -18,7 +19,6 @@ let devDependencies = {};
 // Function to fetch the latest version of a npm package
 async function fetchLatestPackageVersion(packageName: string): Promise<string> {
   try {
-    const execAsync = promisify(exec);
     const { stdout } = await execAsync(`npm show ${packageName} version`);
     return stdout.trim() || 'latest';
   } catch (error) {
@@ -51,72 +51,47 @@ export async function presetGenerator(
   tree: Tree,
   options: PresetGeneratorSchema
 ) {
-  await addDependencies(
-    ['react', 'react-dom', 'react-scripts'],
-    ['typescript', '@types/react', '@types/react-dom']
+  // Define project paths.
+  let projectRoot = '';
+  let projectSrc = '';
+  let projectComponentsPath = '';
+  let projectPagesPath = '';
+  const stylesheet =
+    options.defaultStylesheet === 'sass' ? 'scss' : options.defaultStylesheet;
+
+  if (options.appType === 'monorepo') {
+    await execAsync(
+      `npx create-nx-workspace@latest ${options.name} --preset=react-monorepo --appName=${options.appName} --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=false --skipGit=true --style=${stylesheet}`
+    );
+    moveFilesToNewDirectory(tree, options.name, '.');
+    tree.delete(options.name);
+    tree.delete(`apps/${options.appName}/src/app`);
+
+    projectRoot = `.`;
+    projectSrc = `${projectRoot}/apps/${options.appName}/src`;
+    projectComponentsPath = projectSrc + '/components';
+    projectPagesPath = projectSrc + '/pages';
+  } else {
+    await execAsync(
+      `npx create-nx-workspace@latest ${options.name} --preset=react-standalone --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=false --skipGit=true --style=${stylesheet}`
+    );
+    moveFilesToNewDirectory(tree, options.name, '.');
+    tree.delete(options.name);
+    tree.delete('src/app');
+
+    projectRoot = `.`;
+    projectSrc = projectRoot + '/src';
+    projectComponentsPath = projectSrc + '/components';
+    projectPagesPath = projectSrc + '/pages';
+  }
+
+  generateFiles(
+    tree,
+    path.join(__dirname, 'files', 'src'),
+    projectSrc,
+    options
   );
 
-  // Define project paths.
-  const projectRoot = `.`;
-  const projectSrc = projectRoot + '/src';
-  const projectComponentsPath = projectSrc + '/components';
-  const projectPagesPath = projectSrc + '/pages';
-
-  // Configure the project in Nx.
-  addProjectConfiguration(tree, options.name, {
-    root: projectRoot,
-    projectType: 'application',
-    targets: {},
-  });
-
-  // Generate files and scripts for webpack.
-  if (options.buildTool === 'webpack') {
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'webpack_components'),
-      projectRoot,
-      options
-    );
-    updateJson(tree, 'package.json', (json) => {
-      json.scripts = json.scripts || {};
-      json.scripts.start = 'react-scripts start';
-      json.scripts.build = 'react-scripts build';
-      json.scripts.test = 'react-scripts test';
-      json.scripts.eject = 'react-scripts eject';
-      return json;
-    });
-  } else if (options.buildTool === 'vite') {
-    // Generate files and scripts for Vite.
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'vite_components'),
-      projectRoot,
-      options
-    );
-    // Add Vite-specific devDependencies.
-    await addDependencies(
-      [],
-      [
-        '@typescript-eslint/eslint-plugin',
-        '@typescript-eslint/parser',
-        '@vitejs/plugin-react',
-        'eslint',
-        'eslint-plugin-react-hooks',
-        'eslint-plugin-react-refresh',
-        'vite',
-      ]
-    );
-    // Update package.json scripts.
-    updateJson(tree, 'package.json', (json) => {
-      json.scripts = json.scripts || {};
-      json.scripts.dev = 'vite';
-      json.scripts.build = 'tsc && vite build';
-      json.scripts.lint =
-        'eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0';
-      json.scripts.preview = 'vite preview';
-      return json;
-    });
-  }
   // Handle UI library options.
   if (options.uiLibrary === 'antd') {
     await addDependencies(['antd']);
@@ -196,7 +171,7 @@ export async function presetGenerator(
     generateFiles(
       tree,
       path.join(__dirname, 'files', 'ui_library_components', 'navbar'),
-      projectSrc + '/components/navbar',
+      projectComponentsPath + '/navbar',
       options
     );
   }
@@ -307,67 +282,44 @@ export async function presetGenerator(
     );
   }
 
+  // Handle stylesheet options.
   if (options.defaultStylesheet === 'sass') {
-    await addDependencies([], ['sass']);
-    tree.rename('src/index.css', 'src/index.scss');
-    tree.rename('src/App.css', 'src/App.scss');
+    tree.rename(`${projectSrc}/styles.css`, `${projectSrc}/styles.scss`);
+    tree.rename(`${projectSrc}/app/App.css`, `${projectSrc}/app/App.scss`);
   } else if (options.defaultStylesheet === 'styled-components') {
-    await addDependencies(['styled-components']);
-    tree.delete('src/index.css');
-    tree.delete('src/App.css');
+    tree.delete(`${projectSrc}/styles.css`);
+    tree.delete(`${projectSrc}/app/App.css`);
   }
 
-  // Handle Storybook.
+  // Handle stylesheet options.
   if (options.useStorybook) {
-    await addDependencies(
-      [],
-      [
-        '@storybook/addon-essentials',
-        '@storybook/addon-interactions',
-        '@storybook/addon-links',
-        '@storybook/addon-onboarding',
-        '@storybook/blocks',
-        '@storybook/preset-create-react-app',
-        '@storybook/react',
-        '@storybook/testing-library',
-        'babel-plugin-named-exports-order',
-        'eslint-plugin-storybook',
-        'prop-types',
-        'storybook',
-      ]
-    );
-
-    // Depending on the build tool, add Storybook-specific dependencies.
-    if (options.buildTool === 'webpack') {
-      await addDependencies([], ['webpack', '@storybook/react-webpack5']);
-    } else if (options.buildTool === 'vite') {
-      await addDependencies([], ['@storybook/react-vite']);
-    }
-
-    // Generate Storybook files and update package.json scripts.
     generateFiles(
       tree,
-      path.join(__dirname, 'files', 'storybook_components', '.storybook'),
-      projectRoot + '/.storybook',
+      path.join(__dirname, 'files', 'storybook_components'),
+      projectSrc + '/app',
       options
     );
-    generateFiles(
-      tree,
-      path.join(__dirname, 'files', 'storybook_components', 'stories'),
-      projectSrc + '/stories',
-      options
-    );
-    updateJson(tree, 'package.json', (json) => {
-      json.scripts = json.scripts || {};
-      json.scripts.storybook = 'storybook dev -p 6006';
-      json.scripts['build-storybook'] = 'storybook build';
-      return json;
-    });
   }
 
   // Format the project files and add the collected dependencies to package.json.
   await formatFiles(tree);
-  return addDependenciesToPackageJson(tree, dependencies, devDependencies);
+  addDependenciesToPackageJson(tree, dependencies, devDependencies);
+
+  return () => {
+    installPackagesTask(tree);
+
+    /**
+     * * Storybook configuration
+     * * The reason of handling storybook configuration at the end is that nx storybook cannot be generate until and unless all the project (nx) is not completed.
+     */
+    if (options.useStorybook) {
+      const projectName =
+        options.appType === 'monorepo' ? options.appName : options.name;
+      execSync(
+        `npx nx g @nx/react:storybook-configuration ${projectName} --interactionTests=false --generateStories=false --configureStaticServe=true`
+      );
+    }
+  };
 }
 
 export default presetGenerator;
