@@ -16,7 +16,41 @@ async function main() {
       name = response.name;
     }
 
-    let buildTool = process.argv[3];
+    // Integrated monorepo, or standalone project?
+    let appType = process.argv[3];
+    let appName = '';
+    if (!appType) {
+      appType = (
+        await prompt<{ appType: 'standalone' | 'monorepo' }>({
+          name: 'appType',
+          message: 'Integrated monorepo, or standalone project?',
+          initial: 'standalone' as any,
+          type: 'autocomplete',
+          choices: [
+            { name: 'standalone', message: 'Standalone' },
+            { name: 'monorepo', message: 'Monorepo' },
+          ],
+        })
+      ).appType;
+    }
+    if (appType === 'monorepo') {
+      appName = (
+        await prompt<{ appName: string }>({
+          type: 'input',
+          name: 'appName',
+          message: 'Application name?',
+          validate(value) {
+            if (value.length === 0) {
+              return 'App name is required';
+            }
+            return true;
+          },
+          required: true,
+        })
+      ).appName;
+    }
+
+    let buildTool = process.argv[4];
     if (!buildTool) {
       buildTool = (
         await prompt<{ buildTool: 'webpack' | 'vite' }>({
@@ -32,7 +66,7 @@ async function main() {
       ).buildTool;
     }
 
-    let uiLibrary = process.argv[4];
+    let uiLibrary = process.argv[5];
     if (!uiLibrary) {
       uiLibrary = (
         await prompt<{ uiLibrary: 'mui' | 'antd' | 'none' }>({
@@ -49,7 +83,7 @@ async function main() {
       ).uiLibrary;
     }
 
-    let reactQuery_swr = process.argv[5];
+    let reactQuery_swr = process.argv[6];
     if (!reactQuery_swr) {
       reactQuery_swr = (
         await prompt<{
@@ -68,7 +102,7 @@ async function main() {
       ).reactQuery_swr;
     }
 
-    const router = process.argv[6];
+    const router = process.argv[7];
     let useReactRouter = true;
     if (!router) {
       useReactRouter = (
@@ -82,7 +116,7 @@ async function main() {
       ).useReactRouter;
     }
 
-    let stateManagement = process.argv[7];
+    let stateManagement = process.argv[8];
     if (!stateManagement) {
       stateManagement = (
         await prompt<{ stateManagement: 'redux' | 'jotai' | 'none' }>({
@@ -99,7 +133,7 @@ async function main() {
       ).stateManagement;
     }
 
-    let formLibrary = process.argv[8];
+    let formLibrary = process.argv[9];
     if (!formLibrary) {
       formLibrary = (
         await prompt<{ formLibrary: 'react-hook-form' | 'formik' | 'none' }>({
@@ -116,7 +150,7 @@ async function main() {
       ).formLibrary;
     }
 
-    let defaultStylesheet = process.argv[9];
+    let defaultStylesheet = process.argv[10];
     if (!defaultStylesheet) {
       defaultStylesheet = (
         await prompt<{
@@ -135,7 +169,7 @@ async function main() {
       ).defaultStylesheet;
     }
 
-    const storybook = process.argv[10];
+    const storybook = process.argv[11];
     let useStorybook = true;
     if (!storybook) {
       useStorybook = (
@@ -160,6 +194,8 @@ async function main() {
       {
         name,
         buildTool,
+        appType,
+        appName,
         nxCloud: false,
         packageManager: 'npm',
         uiLibrary,
