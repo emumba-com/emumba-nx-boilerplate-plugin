@@ -8,7 +8,7 @@ Welcome to the documentation for the Emumba Plugin project. This project aims to
 - [Installation & Setup](#installation--setup)
 - [Usage](#usage)
 - [Configuration](#configuration)
-- [Understanding the File Structure of Plugin](#understanding-the-file-structure-of-plugin)
+- [Understanding the File Structure](#understanding-the-file-structure)
 
 ## Introduction
 
@@ -16,26 +16,23 @@ The Emumba Plugin is a CLI tool designed to simplify the process of creating new
 
 ## Installation & Setup
 
-1. Clone the Emumba Plugin repository from GitHub:
+1. Clone the Emumba Plugin repository from Gitlab:
 
    ```bash
-   https://gitlab.com/usama-mujeeb/emumba-plugin.git
-   cd emumba-plugin
-   ```
-
+   https://gitlab.com/emumba/common/emumba-fe-boilerplate-plugin.git
 2. Install project dependencies:
 
    ```bash
    npm install
    ```
 
-3. Set up a local registry for testing. In one terminal, run:
+3. Set up a local registry for testing and run the project locally. In one terminal, run:
 
    ```bash
    npx nx local-registry
    ```
 
-4. In a second terminal, publish the package locally (e.g., version 1.0.0):
+4. In a second terminal, publish the package locally using verdaccio (e.g., version 1.0.0):
    ```bash
    npx nx run-many -t publish --ver 1.0.0 --tag latest
    ```
@@ -51,20 +48,28 @@ To create a new React project using the Emumba Plugin, follow these simple steps
 ```bash
  npx emumba-project-setup@latest my-app
 ```
-
-3. Follow the on-screen prompts to configure your project. You can select options for UI libraries, data fetching libraries, state management, React Router, Storybook, and more.
+3. Follow the on-screen prompts to configure your project. You can select options for UI libraries, data fetching libraries, state management, React Router, Storybook, the type of application (standalone or monorepo), and the build tool you want to use.
 
 4. The Emumba Plugin will create the project with your chosen configurations.
 
-5. You can start your project by navigating to the project directory and using `npm start`.
+5. To start your project, navigate to the project directory. If you've created a standalone app, use the command `npm start`. For a monorepo project, use `nx serve your_monorepo_appName`.
+6. If you've chosen the Storybook option as true, you can run the Storybook by using the following commands. For a standalone project, use `nx storybook`. If you've selected a monorepo, use `nx storybook your_monorepo_appName`.
 
 ## Configuration
 
 The Emumba Plugin allows you to configure various aspects of your project, including:
 
+- **Type of Application:** Choose between Standalone or Monorepo project.
+
+- **Build Tool:** Choose between Webpack or Vite.
+
 - **UI Library:** Choose between Material UI, Ant Design, or None.
 
 - **Data Fetching Library:** Choose between React Query, SWR, or None.
+
+- **Form Library:** Choose between React Hook Form, Formik, or None.
+
+- **Default Stylesheet:** Choose between CSS, SASS, or Styled-Components.
 
 - **React Router:** Configure whether or not to include React Router for handling navigation.
 
@@ -74,75 +79,57 @@ The Emumba Plugin allows you to configure various aspects of your project, inclu
 
 You can customize these options during project setup, and the Emumba Plugin will generate a project that adheres to your choices.
 
-## Understanding the File Structure of Plugin
+## Understanding the File Structure
 
-After clonning the repository you'll see the project structure like below:
+Here's an overview of the project's directory structure:
 
 ```
-emumba-plugin/
-├── packages/
-│   ├── emumba-plugin/
-│   │   ├── src/
-│   │   │   ├── generators/
-│   │   │   │   ├── preset/
-│   │   │   │   │   ├── generator.spec.ts
+├── packages
+│   ├── emumba-plugin
+│   │   ├── src
+│   │   │   ├── generators
+│   │   │   │   ├── preset
+│   │   │   │   │   ├── files
+│   │   │   │   │   │   ├── formik_components
+│   │   │   │   │   │   ├── jotai_components
+│   │   │   │   │   │   ├── react_hook_form_components
+│   │   │   │   │   │   ├── react_query_components
+│   │   │   │   │   │   ├── redux_components
+│   │   │   │   │   │   ├── router_components
+│   │   │   │   │   │   ├── src
+│   │   │   │   │   │   │   ├── app
+│   │   │   │   │   │   │   │   ├── App.css.template
+│   │   │   │   │   │   │   │   └── App.tsx.template
+│   │   │   │   │   │   │   ├── main.tsx.template
+│   │   │   │   │   │   │   └── styles.css.template
+│   │   │   │   │   │   ├── storybook_components
+│   │   │   │   │   │   ├── swr_components
+│   │   │   │   │   │   └── ui_library_components
 │   │   │   │   │   ├── generator.ts
 │   │   │   │   │   ├── schema.d.ts
-│   │   │   │   │   ├── schema.json
-│   │   │   │   │   ├── files/
-│   │   │   │   │   │   ├── public/
-│   │   │   │   │   │   │   ├── index.html.template
-│   │   │   │   │   │   ├── src/
-│   │   │   │   │   │   │   ├── index.tsx.template
-│   │   │   │   │   │   │   ├── index.css.template
-│   │   │   │   │   │   │   ├── App.tsx.template
-│   │   │   │   │   │   │   ├── App.css.template
-│   │   │   │   │   ├── meta_data/
-│   │   │   │   │   │   ├── ui_library_components
-│   │   │   │   │   │   ├── router_components
-│   │   │   │   │   │   ├── jotai_components
-│   │   │   │   │   │   ├── redux_components
-│   │   │   │   │   │   ├── storybook_components
-├── emumba-project-setup/
-│   ├── bin/
-│   │   ├── index.ts
-├── nx.json
-├── package.json
-├── tsconfig.base.json
+│   │   │   │   │   └── schema.json
+│   └── emumba-project-setup
+│       ├── bin
+│       │   └── index.ts
+├── project.json
+├── README.md
+└── tsconfig.base.json
 ```
 
-**Here is a description of each file:**
+## Key Components
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/generator.spec.ts`: This file contains the unit tests for the preset generator.
+### `emumba-project-setup`
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/generator.ts`: This file contains the logic for the preset generator. It performs manipulations on a tree that represents the file system.
+This directory contains the core logic for generating boilerplates based on user preferences. It includes the following elements:
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/schema.d.ts`: This file provides TypeScript typings for the schema used in the preset generator.
+- `bin/index.ts`: This is the entry point of the CLI tool. It utilizes the `enquirer` npm package to prompt users and collect their choices regarding project configuration.
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/schema.json`: This file provides a description of the preset generator, including available options, validation information, and default values.
+### `emumba-plugin/src/generators/preset`
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/files/public/index.html.template`: This file is a template for the index.html file that will be generated by the preset generator. It contains the basic structure of an HTML file for a React application, including the necessary script tags.
+This directory encompasses the code responsible for generating project files and adding dependencies. The central file in this directory is:
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/files/src/index.tsx.template`: This file is a template for the index.tsx file that will be generated by the preset generator. It serves as the entry point for your React application and typically renders the root component.
+- `generator.ts`: This file handles the appropriate file generation and dependency management based on the user's prompt selections.
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/files/src/index.css.template`: This file is a template for the index.css file that will be generated by the preset generator. It can be used to define global styles for your React application.
+### `emumba-plugin/src/generators/preset/files`
 
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/files/src/App.tsx.template`: This file is a template for the App.tsx file that will be generated by the preset generator. It represents the main component of your React application and can be customized to define the structure and behavior of your app.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/files/src/App.css.template`: This file is a template for the App.css file that will be generated by the preset generator. It can be used to define styles specific to the App.tsx component.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/meta_data/ui_library_components`: This folder contains metadata related to UI library components used by the preset generator.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/meta_data/router_components`: This folder contains metadata related to router components used by the preset generator.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/meta_data/jotai_components`: This folder contains metadata related to Jotai components used by the preset generator.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/meta_data/redux_components`: This folder contains metadata related to Redux components used by the preset generator.
-
-- `emumba-plugin/packages/emumba-plugin/src/generators/preset/meta_data/storybook_components`: This folder contains metadata related to Storybook components used by the preset generator.
-
-- `emumba-plugin/emumba-project-setup/bin/index.ts`: This file contains the logic for handling user prompts using the enquirer npm package. It is the entry point for your custom CLI plugin.
-
-- `emumba-plugin/nx.json`: This file contains the configuration for the Nx workspace, including project definitions and dependencies.
-
-- `emumba-plugin/tsconfig.base.json`: This file contains the base TypeScript configuration for your Nx workspace.
+This directory holds templates for the components that will be generated/added based on the user's selections. It includes subdirectories for various components, such as UI libraries (e.g., Material UI in `/ui_library_components/mui`) and other options.
