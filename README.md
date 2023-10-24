@@ -1,4 +1,4 @@
-# Emumba Plugin Documentation
+# Emumba Frontend CLI Plugin Guide
 
 Welcome to the documentation for the Emumba Plugin project. This project aims to streamline the creation of React applications by providing a CLI tool that sets up a boilerplate project with selected options.
 
