@@ -1,0 +1,2 @@
+const variable = "<%= name %>";
+const variable = "<%= uiLibrary %>";

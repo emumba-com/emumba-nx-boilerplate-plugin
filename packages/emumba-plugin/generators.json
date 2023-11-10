@@ -1,0 +1,15 @@
+{
+  "generators": {
+    "preset": {
+      "factory": "./src/generators/preset/generator",
+      "schema": "./src/generators/preset/schema.json",
+      "description": "preset generator",
+      "x-use-standalone-layout": true
+    },
+    "project-setup": {
+      "factory": "./src/generators/project-setup/generator",
+      "schema": "./src/generators/project-setup/schema.json",
+      "description": "project-setup generator"
+    }
+  }
+}

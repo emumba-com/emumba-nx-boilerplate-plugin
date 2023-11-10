@@ -1,0 +1,35 @@
+import React, { FC } from 'react';
+import Button from '../../components/ui/button';
+<%_ if (stateManagement === 'redux' || stateManagement === 'jotai') { _%>
+import Counter from "../../features/counter/counter";
+<%_ } _%>
+
+  let buttonText = 'Click';
+  <%_ if (uiLibrary === 'mui') { _%>
+    buttonText = 'MUI button';
+  <%_ } _%>
+  <%_ if (uiLibrary === 'antd') { _%>
+    buttonText = 'Ant Design button';
+  <%_ } _%>
+
+const Home: FC = () => {
+
+return (
+  <header style={{
+    'backgroundColor': 'white',
+    'display': 'flex',
+    'flexDirection': 'column',
+    'alignItems': 'center',
+    'justifyContent': 'center',
+    'fontSize': 'calc(10px + 2vmin)',
+    'color': '#282c34'
+  }}>
+    <p>Welcome To React!</p>
+    <Button text={buttonText} onClick={() => alert("Hello 👋")} />
+    <%_ if (stateManagement === 'redux' || stateManagement === 'jotai') { _%>
+    <Counter />
+    <%_ } _%>
+  </header>
+)
+}
+export default Home;

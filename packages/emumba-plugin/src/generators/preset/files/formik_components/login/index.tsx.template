@@ -1,0 +1,61 @@
+import * as Yup from "yup";
+import Form from "../../components/form";
+import Input from "../../components/input";
+
+// interface for form
+interface EmailInterface {
+  email: string;
+  password: string;
+}
+
+// validation schema for form
+const validationSchema = Yup.object().shape({
+  email: Yup.string().email().required(),
+  password: Yup.string().min(8).required(),
+});
+
+export default function Login() {
+  const defaultValues: EmailInterface = { email: "", password: "" };
+
+  const onSubmit = (data: EmailInterface) => alert(JSON.stringify(data));
+
+  return (
+    <div style={{ width: "400px", margin: "0 auto", padding: "20px" }}>
+      <h1 style={{ textAlign: "center", color: "#333" }}>Login</h1>
+      <Form
+        onSubmit={onSubmit}
+        defaultValues={defaultValues}
+        validationSchema={validationSchema}
+        className="change-form"
+      >
+        <Input
+          name="email"
+          type="email"
+          placeholder="Enter your email"
+          autoFocus
+          style={{ width: "100%", margin: "10px 0", padding: "5px" }}
+        />
+        <Input
+          name="password"
+          type="password"
+          placeholder="Password"
+          style={{ width: "100%", margin: "10px 0", padding: "5px" }}
+        />
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            margin: "10px 0",
+            padding: "10px",
+            backgroundColor: "#333",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+          }}
+        >
+          Login
+        </button>
+      </Form>
+    </div>
+  );
+}

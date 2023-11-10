@@ -1,0 +1,10 @@
+/**
+ * Select the counter value from the state.
+ * @param {Object} state - The Redux state object.
+ * @returns {number} The current counter value.
+ */
+export const selectCounterValue = state => state.counter.value;
+
+// You can add more selectors for other parts of your state as needed.
+// For example, if you have another slice named "user", you can create a selector like:
+// export const selectUser = state => state.user;

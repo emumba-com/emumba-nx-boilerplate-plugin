@@ -1,0 +1,58 @@
+import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+
+/**
+ * Create a Redux slice for counter with specified initial state and reducers.
+*/
+
+// Define the shape of the counter state using an interface
+interface CounterState {
+    value: number // The current value of the counter
+}
+
+// Set the initial state for the counter slice
+const initialState: CounterState = {
+    value: 0, // Initial counter value set to zero
+}
+
+// Create a slice for managing the counter state and related actions
+const counterSlice = createSlice({
+    name: 'counter', // The unique name for this slice, used in action type generation
+    initialState,   // The starting state of the counter slice
+    reducers: {
+
+        /**
+        * A reducer function to handle incrementing the counter value.
+        * @param {Object} state - The current state of the slice.
+        */
+        increment(state) {
+            state.value++ // Increment the current counter value
+        },
+
+        /**
+        * A reducer function to handle decrementing the counter value.
+        * @param {Object} state - The current state of the slice.
+        */
+        decrement(state) {
+            state.value-- // Decrement the current counter value
+        },
+
+        /**
+        * A reducer function to handle incrementing the counter value by a specific amount
+        * @param {Object} state - The current state of the slice.
+        * @param {Object} action - The action object containing payload.
+        */
+        incrementByAmount(state, action: PayloadAction<number>) {
+            // Modify the state based on the payload
+            // For example: state.someProperty = payloadData.someValue;
+            state.value += action.payload // Increment the counter value by the payload amount
+        },
+        // Define additional actions and reducers here
+    },
+})
+
+// Extract the action creators from the counter slice
+export const { increment, decrement, incrementByAmount /* Add additional action creators */ } = counterSlice.actions
+
+// Export the reducer function to be used in the Redux store
+export default counterSlice.reducer

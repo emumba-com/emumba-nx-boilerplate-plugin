@@ -1,0 +1,124 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+<%_ if (uiLibrary === 'mui') { _%>
+import { AppBar, Tabs, Tab } from '@mui/material';
+
+export default function Navbar() {
+  return (
+    <AppBar position="static">
+     <Tabs sx={{ flexGrow: 1 }}>
+          <Tab sx={{ color: "whitesmoke" }} label="Home" component={Link} to="/" />
+          <Tab sx={{ color: "whitesmoke" }} label="About" component={Link} to="/about" />
+          <%_ if (reactQuery_swr === 'react-query') { _%>
+          <Tab sx={{ color: "whitesmoke" }} label="Test React Query" component={Link} to="/posts" />
+          <%_ } _%>
+          <%_ if (reactQuery_swr === 'swr') { _%>
+          <Tab sx={{ color: "whitesmoke" }} label="Test SWR" component={Link} to="/posts" />
+          <%_ } _%>
+          <%_ if (formLibrary !== 'none') { _%>
+          <Tab
+          sx={{ color: "whitesmoke", marginLeft: "auto" }}
+          label="Login"
+          component={Link}
+          to="/login"
+          />
+          <%_ } _%>
+        </Tabs>
+    </AppBar>
+  );
+}
+
+<%_ } else if (uiLibrary === 'antd') { _%>
+import { Layout, Menu } from 'antd';
+const { Item } = Menu
+
+export default function Navbar(){
+  return (
+   <Layout>
+     <Menu mode="horizontal">
+      <Item key="home">
+        <Link to="/">Home</Link>
+      </Item>
+      <Item key="about">
+        <Link to="/about">About</Link>
+      </Item>
+       <%_ if (reactQuery_swr === 'react-query') { _%>
+        <Item key="posts">
+        <Link to="/posts">Test React Query</Link>
+      </Item>
+       <%_ } _%>
+       <%_ if (reactQuery_swr === 'swr') { _%>
+       <Item key="posts">
+        <Link to="/posts">Test SWR</Link>
+      </Item>
+       <%_ } _%>
+      <%_ if (formLibrary !== 'none') { _%>
+      <Item key="login">
+        <Link to="/login">Login</Link>
+      </Item>
+      <%_ } _%>
+    </Menu>
+  </Layout>
+  );
+};
+
+<%_ } else { _%>
+
+export default function Navbar() {
+  return (
+     <div 
+       style={{
+        width: "100%",
+        margin: "auto",
+        backgroundColor: "#3f51b5",
+        color: "white",
+        display: "flex",
+      }}
+     >
+        <Link
+          to="/"
+          style={{ color: 'white', padding: '20px', textDecoration: 'none' }}
+        >
+          Home
+        </Link>
+        <Link
+          to="/about"
+          style={{ color: 'white', padding: '20px', textDecoration: 'none' }}
+        >
+          About
+        </Link>
+        <%_ if (reactQuery_swr === 'react-query') { _%>
+       <Link
+          to="/posts"
+          style={{ color: 'white', padding: '20px', textDecoration: 'none' }}
+        >
+          Test React Query
+        </Link>
+        <%_ } _%>
+        <%_ if (reactQuery_swr === 'swr') { _%>
+        <Link
+          to="/posts"
+          style={{ color: 'white', padding: '20px', textDecoration: 'none' }}
+        >
+          Test SWR
+        </Link>
+        <%_ } _%>
+        <%_ if (formLibrary !== 'none') { _%>
+        <Link
+        to="/login"
+        style={{
+          color: "white",
+          padding: "20px",
+          textDecoration: "none",
+          marginLeft: "auto",
+        }}
+        >
+        Login
+      </Link>
+        <%_ } _%>
+    </div>
+  );
+}
+
+
+<%_ } _%>

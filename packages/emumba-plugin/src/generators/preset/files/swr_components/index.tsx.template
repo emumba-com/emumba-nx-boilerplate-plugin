@@ -1,0 +1,31 @@
+import React from "react";
+import useSWR from "swr";
+
+// Define your API endpoint
+const API_URL = "https://jsonplaceholder.typicode.com/posts/1";
+
+// Fetch function
+async function fetcher(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+}
+
+// React component
+const Posts: React.FC = () => {
+  const { data, error } = useSWR(API_URL, fetcher);
+
+  if (error) return <div>An error has occurred: {error.message}</div>;
+  if (!data) return <div>Loading...</div>;
+
+  return (
+    <li style={{ listStyle: "none" }} key={data.id}>
+      <h2>{data.title}</h2>
+      <p>{data.body}</p>
+    </li>
+  );
+};
+
+export default Posts;
