@@ -17,7 +17,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
-      - run: npm config set registry https://registry.npmjs.org/
       - run: npm ci
       - run: npx nx run-many -t publish --ver 1.0.0 --tag latest
         env:
