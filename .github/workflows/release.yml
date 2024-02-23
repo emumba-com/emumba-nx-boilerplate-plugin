@@ -18,6 +18,9 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
-      - run: npx nx run-many -t publish --ver 1.0.0 --tag latest
+      - run: |
+          TAG=${TAG_NAME/refs\/tags\/v/}
+          npx nx run-many -t publish --ver $TAG --tag latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          TAG_NAME: ${{ github.ref }}
