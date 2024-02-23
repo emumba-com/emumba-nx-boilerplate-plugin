@@ -19,7 +19,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
       - run: |
-          TAG=${TAG_NAME/refs\/tags\/v/}
+          TAG=$(echo $TAG_NAME | cut -d'/' -f3)
           npx nx run-many -t publish --ver $TAG --tag latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
