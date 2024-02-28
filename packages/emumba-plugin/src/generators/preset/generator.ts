@@ -61,7 +61,7 @@ export async function presetGenerator(
 
   if (options.appType === 'monorepo') {
     await execAsync(
-      `npx create-nx-workspace@latest ${options.name} --preset=react-monorepo --appName=${options.appName} --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=false --skipGit=true --style=${stylesheet}`
+      `npx create-nx-workspace@latest ${options.name} --preset=react-monorepo --appName=${options.appName} --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=skip --skipGit=true --style=${stylesheet}`
     );
     moveFilesToNewDirectory(tree, options.name, '.');
     tree.delete(options.name);
@@ -73,7 +73,7 @@ export async function presetGenerator(
     projectPagesPath = projectSrc + '/pages';
   } else {
     await execAsync(
-      `npx create-nx-workspace@latest ${options.name} --preset=react-standalone --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=false --skipGit=true --style=${stylesheet}`
+      `npx create-nx-workspace@latest ${options.name} --preset=react-standalone --bundler=${options.buildTool} --e2eTestRunner=none --nxCloud=skip --skipGit=true --style=${stylesheet}`
     );
     moveFilesToNewDirectory(tree, options.name, '.');
     tree.delete(options.name);
