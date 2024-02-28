@@ -32,7 +32,9 @@ The Emumba Plugin is a CLI tool designed to simplify the process of creating new
    ```bash
    npm i
    ```
+   
 For development/testing purposes, comment the line with @emumba-com:registry in the .npmrc files located at project root, /packages/emumbaplugin and /packages/emumba-project-setup.
+
 
 4. Set up a local registry for testing and run the project locally. In one terminal, run:
 
