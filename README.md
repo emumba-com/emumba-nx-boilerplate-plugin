@@ -19,20 +19,30 @@ The Emumba Plugin is a CLI tool designed to simplify the process of creating new
 1. Clone the Emumba Plugin repository from Gitlab:
 
    ```bash
-   https://gitlab.com/emumba/common/emumba-fe-boilerplate-plugin.git
-2. Install project dependencies:
+   git clone https://github.com/emumba-com/emumba-nx-boilerplate-plugin.git
+   ```
+2. Setup Verdaccio in the project for local publishing
 
    ```bash
-   npm install
+   npx nx g setup-verdaccio
    ```
 
-3. Set up a local registry for testing and run the project locally. In one terminal, run:
+3. Install project dependencies:
+
+   ```bash
+   npm i
+   ```
+   
+For development/testing purposes, comment the line with @emumba-com:registry in the .npmrc files located at project root, /packages/emumbaplugin and /packages/emumba-project-setup.
+
+
+4. Set up a local registry for testing and run the project locally. In one terminal, run:
 
    ```bash
    npx nx local-registry
    ```
 
-4. In a second terminal, publish the package locally using verdaccio (e.g., version 1.0.0):
+5. In a second terminal, publish the package locally using verdaccio (e.g., version 1.0.0):
    ```bash
    npx nx run-many -t publish --ver 1.0.0 --tag latest
    ```
@@ -46,7 +56,7 @@ To create a new React project using the Emumba Plugin, follow these simple steps
 2. Run the following command:
 
 ```bash
- npx emumba-project-setup@latest my-app
+npx @emumba-com/nx-project-setup@latest my-app
 ```
 3. Follow the on-screen prompts to configure your project. You can select options for UI libraries, data fetching libraries, state management, React Router, Storybook, the type of application (standalone or monorepo), and the build tool you want to use.
 

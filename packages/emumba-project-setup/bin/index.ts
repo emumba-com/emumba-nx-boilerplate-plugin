@@ -190,13 +190,13 @@ async function main() {
 
     // TODO: update below to customize the workspace
     const { directory } = await createWorkspace(
-      `emumba-plugin@${presetVersion}`,
+      `@emumba-com/nx-plugin@${presetVersion}`,
       {
         name,
         buildTool,
         appType,
         appName,
-        nxCloud: false,
+        nxCloud: 'skip',
         packageManager: 'npm',
         uiLibrary,
         reactQuery_swr,
