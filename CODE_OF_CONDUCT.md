@@ -43,7 +43,7 @@ We expect all community participants (contributors, paid or otherwise; sponsors;
 
 ## 8. Contact info
 
-Please contact [YOUR EMAIL] with any questions or concerns.
+Please contact ahmed.khan@emumba.com with any questions or concerns.
 
 ## 9. License and attribution
 
